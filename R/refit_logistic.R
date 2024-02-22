@@ -6,7 +6,7 @@
 #' @param wts sampling weights
 #' @param N population size in each unit (area); a vector of m (number of units)
 #'
-#'
+#' @import survey
 
 refit_Lm1<- function(indexy, y, z, x, cluster, wts, N)
 {

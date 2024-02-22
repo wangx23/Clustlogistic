@@ -6,7 +6,7 @@
 #' @param sweights sampling weights
 #' @param N population size in each unit (area); a vector of m (number of units)
 #' @param xunit In each area, population level
-#'
+#' @import survey
 #' @return
 #' @export
 
