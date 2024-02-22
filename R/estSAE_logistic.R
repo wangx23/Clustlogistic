@@ -1,63 +1,107 @@
-#' estimation for area proportions based on clustered intercept model
+#' estimation for area proportions based on models three estimator 
 #' @param obj model object
 #' @param indexy area index
 #' @param y response
-#' @param x covariates common regression coef
+#' @param x covariates
+#' @param xunit population level x 
 #' @param sweights sampling weights
 #' @param N population size in each unit (area); a vector of m (number of units)
-#' @param xunit all population level obs, first column for area
-#'
-#'
-estSAE_intercept <- function(obj,indexy, y, x, sweights, xunit, N)
+#' 
+#' 
+#' 
+#' 
+estSAE_logistic <- function(obj,indexy, y, x, xunit, wts,N, 
+                               model, group = NULL)
 {
-  betaest <- obj$beta
-  etaest <- obj$eta
-  clusterest <- obj$cluster
 
-  uindex <- unique(indexy)
-  m <- length(uindex)
-
-  betaest_area <- data.frame(area = unique(indexy),
-                             intercept = betaest)
-
-  # phatc in each
-  phatc <- xpopd %>% left_join(betaest_area, by = "area")
-  phatc <- phatc %>%
-    mutate(phat = 1/(1+exp(-intercept - as.numeric(as.matrix(xpopd[,-(1:2)]) %*% etaest))))
-
-
-  Ybarest_SR <- Ybarest_syn <- Ybarest_comp <-  rep(0,m)
-
-  for(i in 1:m)
+  cluster_est <- obj$cluster
+  nivec <- as.numeric(table(indexy))
+  nt <- sum(nivec)
+  uindexy <- unique(indexy)
+ 
+  
+  if(model == "intercept")
   {
-    indexi <- indexy == uindex[i]
-    indexi_pop <- xpop[,1] ==uindex[i]
-    xi_sample <- x[indexi,]
-    phati_sample <- 1/(1+exp(-betaest[i] - as.matrix(xi_sample) %*% etaest))
-    wtsi <- sweights[indexi]
-
-    Ybarest_SR[i] <- sum(wtsi * (y[indexi] - phati_sample))/Ni[i]
+    xintercept <- matrix(1, nt)
+    res_refit <- refit_Lm1(indexy = indexy,y = y, z = x, x = xintercept,
+                          cluster = cluster_est,wts = wts,N = N)
+    eta_est <- res_refit$eta
+    beta_est <- res_refit$beta
+    ## muhat_unit 
+    
+    muhat_unit <- rep(0, nrow(xunit))
+    for(ii in 1:m)
+    {
+      xuniti <- xunit[xunit[,1]==uindexy[ii],-1] 
+      muhat_unit[xunit[,1]==uindexy[ii]] <- 1/(1+exp(-as.matrix(xuniti) %*% eta_est - beta_est[ii])) 
+    }
+    
+    muhat_unit_mean <- aggregate(muhat_unit,by = list(area = xunit[,1]),FUN = mean)
+  }
+  
+  if(model == "creg")
+  {
+    res_refit <- refit_Lm2(indexy = indexy,y = y, x = cbind(1,x), 
+                           cluster = cluster_est,wts = wts,N = N)
+    
+    eta_est <- res_refit$eta
+    beta_est <- res_refit$beta
+    ## muhat_unit 
+    
+    muhat_unit <- rep(0, nrow(xunit))
+    for(ii in 1:m)
+    {
+      xuniti <- xunit[xunit[,1]==uindexy[ii],-1] 
+      muhat_unit[xunit[,1]==uindexy[ii]] <- 1/(1+exp(-cbind(1,as.matrix(xuniti)) %*% beta_est[ii,])) 
+    }
+    
+    muhat_unit_mean <- aggregate(muhat_unit,by = list(area = xunit[,1]),FUN = mean)
+  }
+  
+  
+  if(model == "ccreg")
+  {
+    res_refit <- refit_Lm3(indexy = indexy,y = y, x = cbind(1,x), 
+                           clustermat = cluster_est, wts = wts,N = N,group = group)
+    
+    eta_est <- res_refit$eta
+    beta_est <- res_refit$beta
+    ## muhat_unit 
+    
+    muhat_unit <- rep(0, nrow(xunit))
+    for(ii in 1:m)
+    {
+      xuniti <- xunit[xunit[,1]==uindexy[ii],-1] 
+      muhat_unit[xunit[,1]==uindexy[ii]] <- 1/(1+exp(-cbind(1,as.matrix(xuniti)) %*% beta_est[ii,])) 
+    }
+    
+    muhat_unit_mean <- aggregate(muhat_unit,by = list(area = xunit[,1]),FUN = mean)
   }
 
-  phatcs <- phatc %>% group_by(area) %>%
-    summarise(phatc = sum(Nc*phat))
+  muhat <- res_refit$muhat
+  subfun <- function(ii)
+  {
+    indexii <- indexy == uindexy[ii]
+    yii <- y[indexii]
+    muhatii <- muhat[indexii]
+    
+    sum((yii - muhatii)*wts[indexii])/N[ii]
+  }
+  estp1 <- unlist(lapply(1:length(uindexy),subfun))
+  
+  # three estimators 
+  estY_SR <- estp1 + muhat_unit_mean$x
+  estY_syn <- muhat_unit_mean$x
+  
+  estp2 <- aggregate(y-muhat, by = list(area = indexy), sum)[,2]
+  estY_comp <- muhat_unit_mean$x + estp2/N
+  
 
-  Ybarest_SR <- phatcs$phatc/Ni + Ybarest_SR
-  Ybarest_syn <- phatcs$phatc/Ni
+  out <- list(estY_SR = estY_SR, estY_syn = estY_syn, estY_comp = estY_comp,
+              refit = res_refit, model = model)
 
-  datay <- data.frame(area = indexy, y = y, x)
-  sample_ag <- datay %>% group_by_at(vars(area,colnames(x))) %>%
-    summarise(nc = n(), sumy = sum(y)) %>%
-    right_join(phatc, by = c("area",colnames(x))) %>%
-    replace(is.na(.), 0)%>%
-    ungroup() %>% group_by(area) %>%
-    summarise(est = sum((Nc - nc)*phat),sumy = sum(sumy))
-
-  Ybarest_comp <- sample_ag$sumy/Ni + sample_ag$est/Ni
-
-
-  return(list(SR = Ybarest_SR, SYN = Ybarest_syn, Comp = Ybarest_comp))
-
+  return(out)
+  
 }
 
 
