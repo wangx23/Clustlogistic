@@ -19,6 +19,7 @@ estSAE_logistic <- function(obj,indexy, y, x, xunit, wts,N,
   nivec <- as.numeric(table(indexy))
   nt <- sum(nivec)
   uindexy <- unique(indexy)
+  m <- length(nivec)
 
 
   if(model == "intercept")
