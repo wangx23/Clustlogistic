@@ -58,7 +58,7 @@ Clogistic_SAE <- function(area, y, x, xunit,
     resm <- Clogistic1(indexy = area, y = y, z = x_sc, x = xintercept,
                        sweights = wts, Ni = N,
                        betam0 = betam0, eta00 = eta00,
-                       lam = lam[which.min(bic)])
+                       lam = lambda[which.min(bic)])
     # based on cluster get the estimate
 
 
