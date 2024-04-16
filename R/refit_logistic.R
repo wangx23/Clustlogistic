@@ -5,6 +5,8 @@
 #' @param cluster cluster structure
 #' @param wts sampling weights
 #' @param N population size in each unit (area); a vector of m (number of units)
+#' @return
+#' @export
 #'
 #' @import survey
 
