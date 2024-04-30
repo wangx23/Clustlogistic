@@ -17,7 +17,9 @@
 initial2 <- function(indexy,y, x, sweights, Ni,lam0  = 0.0001, tol = 1e-5, maxiter = 500)
 {
   ns <- as.numeric(table(indexy))
-  wt <- rep(1/Ni, ns) * sweights
+
+  Nbar <- rep(mean(Ni), length(Ni))
+  wt <- rep(1/Nbar, ns) * sweights
 
   ### first fit a logistic regression with all are
   #in one group to get the starting values

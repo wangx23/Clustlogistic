@@ -20,7 +20,9 @@ refit_Lm1<- function(indexy, y, z, x, cluster, wts, N)
   ng <- length(unique(cluster))
 
   ns <- as.numeric(table(indexy))
-  wtilde <- rep(1/N, ns) * wts
+  #wtilde <- rep(1/N, ns) * wts
+  Nbar <- rep(mean(N), length(N))
+  wtilde  <- rep(1/Nbar, nivec) * wts
 
   for(i in 1:nr)
   {
@@ -63,7 +65,9 @@ refit_Lm2 <- function(indexy, y, x, cluster, wts, N)
   ng <- length(unique(cluster))
 
   ns <- as.numeric(table(indexy))
-  wtilde <- rep(1/N, ns) * wts
+ # wtilde <- rep(1/N, ns) * wts
+  Nbar <- rep(mean(N), length(N))
+  wtilde  <- rep(1/Nbar, nivec) * wts
 
   for(i in 1:nr)
   {
@@ -109,7 +113,9 @@ refit_Lm3 <- function(indexy, y, x, group, clustermat,wts, N)
   ngtotal <- sum(ngest)
 
   ns <- as.numeric(table(indexy))
-  wtilde <- rep(1/N, ns) * wts
+  Nbar <- rep(mean(N), length(N))
+  wtilde  <- rep(1/Nbar, nivec) * wts
+ # wtilde <- rep(1/N, ns) * wts
 
   Xm <- matrix(0, nrow(x), nr*ncx)
   uniqxy <- unique(indexy)

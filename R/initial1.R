@@ -21,7 +21,9 @@ initial1 <- function(indexy,y, z, x, sweights, Ni, lam0  = 0.0001, tol = 1e-5, m
 
   ns <- as.numeric(table(indexy))
   #wt <- rep(ns/Ni, ns) * sweights
-  wt <- rep(1/Ni, ns) * sweights
+
+  Nbar <- rep(mean(Ni), length(Ni))
+  wt <- rep(1/Nbar, ns) * sweights
 
   ### first fit a logistic regression with all are
   #in one group to get the starting values

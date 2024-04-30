@@ -28,8 +28,9 @@ Clogistic2 <- function(indexy, y, x, sweights, Ni, betam0,
 
   ### data info#####
   ns <- as.numeric(table(indexy))
-  #wt <- rep(ns/Ni, ns) * sweights
-  wt <- rep(1/Ni, ns) * sweights
+  Nbar <- rep(mean(Ni), length(Ni))
+  wt <- rep(1/Nbar, ns) * sweights
+  #wt <- rep(1/Ni, ns) * sweights
 
   x <- as.matrix(x)
   ncx <- ncol(x)
