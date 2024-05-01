@@ -21,6 +21,8 @@ estSAE_logistic <- function(obj,indexy, y, x, xunit, wts,N,
   uindexy <- unique(indexy)
   m <- length(nivec)
 
+  x <- as.matrix(x)
+  xunit <- as.matrix(xunit)
 
   if(model == "intercept")
   {

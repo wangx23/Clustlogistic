@@ -24,6 +24,9 @@ Clogistic_SAE <- function(area, y, x, xunit,
   m <- length(unique(area))
   nivec <- as.numeric(table(area))
 
+  x <- as.matrix(x)
+  xunit <- as.matrix(xunit)
+
   xintercept <- matrix(1, nrow = nt)
 
   if(standardize)
