@@ -12,10 +12,13 @@
 
 lgreg <- function(indexy, y, x, sweights, xunit, N)
 {
+
   uindex <- unique(indexy)
   m <- length(uindex)
   res_trad <- refit_Lm2(indexy, y, cbind(1,x), rep(1,m), wts=sweights , N)
   betaest <- res_trad$beta[1,]
+
+  xunit <- as.matrix(xunit)
 
   muhat_unit <- rep(0, nrow(xunit))
   for(ii in 1:m)

@@ -22,7 +22,7 @@ refit_Lm1<- function(indexy, y, z, x, cluster, wts, N)
   ns <- as.numeric(table(indexy))
   #wtilde <- rep(1/N, ns) * wts
   Nbar <- rep(mean(N), length(N))
-  wtilde  <- rep(1/Nbar, nivec) * wts
+  wtilde  <- rep(1/Nbar, ns) * wts
 
   for(i in 1:nr)
   {
@@ -39,7 +39,7 @@ refit_Lm1<- function(indexy, y, z, x, cluster, wts, N)
 
   design <- svydesign(ids = ~1, weights = ~wts, data = datn )
   for1 <- as.formula(paste("y","~0+",paste(paste("x", 1:ncol(Ux),sep=""),collapse = "+")))
-  resw <- svyglm(for1,design, family = "binomial")
+  resw <- svyglm(for1,design, family =quasibinomial())
 
   est <- coef(resw)
 
@@ -55,6 +55,7 @@ refit_Lm1<- function(indexy, y, z, x, cluster, wts, N)
 
 #### model 2 ####
 ## all x have groups, no common group
+#' @export
 refit_Lm2 <- function(indexy, y, x, cluster, wts, N)
 {
   x <- as.matrix(x)
@@ -67,7 +68,7 @@ refit_Lm2 <- function(indexy, y, x, cluster, wts, N)
   ns <- as.numeric(table(indexy))
  # wtilde <- rep(1/N, ns) * wts
   Nbar <- rep(mean(N), length(N))
-  wtilde  <- rep(1/Nbar, nivec) * wts
+  wtilde  <- rep(1/Nbar, ns) * wts
 
   for(i in 1:nr)
   {
@@ -84,9 +85,8 @@ refit_Lm2 <- function(indexy, y, x, cluster, wts, N)
 
   design <- svydesign(ids = ~1, weights = ~wts, data = datn )
   for1 <- as.formula(paste("y","~0+",paste(paste("x", 1:ncol(Ux),sep=""),collapse = "+")))
-  resw <- svyglm(for1,design, family = "binomial")
+  resw <- svyglm(for1,design, family =quasibinomial())
   est <- coef(resw)
-  glm(for1, family = "binomial", data = datn)
 
   beta_est <- matrix(est[1:(ng*ncx)],ng, byrow = TRUE)
   beta_est <- beta_est[cluster,]
@@ -103,6 +103,7 @@ refit_Lm2 <- function(indexy, y, x, cluster, wts, N)
 ## each coordinate has its own group information
 # groupmat is the true group structure
 # group is the group index for coordinate
+#' @export
 refit_Lm3 <- function(indexy, y, x, group, clustermat,wts, N)
 {
   x <- as.matrix(x)
@@ -114,7 +115,7 @@ refit_Lm3 <- function(indexy, y, x, group, clustermat,wts, N)
 
   ns <- as.numeric(table(indexy))
   Nbar <- rep(mean(N), length(N))
-  wtilde  <- rep(1/Nbar, nivec) * wts
+  wtilde  <- rep(1/Nbar, ns) * wts
  # wtilde <- rep(1/N, ns) * wts
 
   Xm <- matrix(0, nrow(x), nr*ncx)
@@ -141,7 +142,7 @@ refit_Lm3 <- function(indexy, y, x, group, clustermat,wts, N)
 
   design <- svydesign(ids = ~1, weights = ~wts, data = datn )
   for1 <- as.formula(paste("y","~0+",paste(paste("x", 1:ncol(Ux),sep=""),collapse = "+")))
-  resw <- svyglm(for1,design, family = "binomial")
+  resw <- svyglm(for1,design, family =quasibinomial())
   est <- coef(resw)
 
   muhat <- 1/ (1+exp(-as.matrix(Ux) %*% as.numeric(est)))
