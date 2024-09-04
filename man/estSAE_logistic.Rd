@@ -4,7 +4,18 @@
 \alias{estSAE_logistic}
 \title{estimation for area proportions based on models three estimator}
 \usage{
-estSAE_logistic(obj, indexy, y, x, xunit, wts, N, model, group = NULL)
+estSAE_logistic(
+  obj,
+  indexy,
+  y,
+  x,
+  xunit,
+  wts,
+  N,
+  model,
+  group = NULL,
+  index_d = NULL
+)
 }
 \arguments{
 \item{obj}{model object}

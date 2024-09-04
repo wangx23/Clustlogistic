@@ -12,6 +12,7 @@ Clogistic_SAE(
   wts,
   N,
   model,
+  index_d = NULL,
   group = NULL,
   lambda,
   standardize = TRUE,
@@ -31,7 +32,7 @@ Clogistic_SAE(
 
 \item{N}{population size in each unit (area); a vector of m (number of units)}
 
-\item{model}{three models, "intercept","creg" and "ccreg"}
+\item{model}{three models, "intercept", "creg" and "ccreg", "separate"}
 
 \item{group}{group information for ccreg model}
 

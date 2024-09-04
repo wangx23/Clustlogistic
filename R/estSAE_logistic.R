@@ -12,7 +12,7 @@
 #' @return
 #' @export
 estSAE_logistic <- function(obj,indexy, y, x, xunit, wts,N,
-                               model, group = NULL)
+                               model, group = NULL, index_d = NULL)
 {
 
   cluster_est <- obj$cluster
@@ -81,6 +81,31 @@ estSAE_logistic <- function(obj,indexy, y, x, xunit, wts,N,
 
     muhat_unit_mean <- aggregate(muhat_unit,by = list(area = xunit[,1]),FUN = mean)
   }
+
+  if(model == "separate")
+  {
+    xm_d <- cbind(1, x[,index_d,drop = FALSE]) # different part
+    xm_s <- x[,-(index_d), drop = FALSE] ## same part
+
+    res_refit <- refit_Lm1(indexy = indexy,y = y, z = xm_s, x = xm_d,
+                           cluster = cluster_est,wts = wts,N = N)
+    eta_est <- res_refit$eta
+    beta_est <- res_refit$beta
+    ## muhat_unit
+
+    muhat_unit <- rep(0, nrow(xunit))
+    for(ii in 1:m)
+    {
+      xuniti <- xunit[xunit[,1]==uindexy[ii],-1]
+      xuniti_d <- cbind(1, xuniti[,index_d, drop = FALSE])
+      xuniti_s <- xuniti[, -(index_d), drop = FALSE]
+      muhat_unit[xunit[,1]==uindexy[ii]] <- 1/(1+exp(-as.matrix(xuniti_s) %*% eta_est -
+                                                       xuniti_d %*%beta_est[ii,]))
+    }
+
+    muhat_unit_mean <- aggregate(muhat_unit,by = list(area = xunit[,1]),FUN = mean)
+  }
+
 
   muhat <- res_refit$muhat
   subfun <- function(ii)

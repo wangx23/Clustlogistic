@@ -5,7 +5,7 @@
 #' @param xunit population level data, first column the area index
 #' @param wts sampling weights
 #' @param N population size in each unit (area); a vector of m (number of units)
-#' @param model three models, "intercept","creg" and "ccreg"
+#' @param model three models, "intercept", "creg" and "ccreg", "separate"
 #' @param group group information for ccreg model
 #' @param lambda a vector of lambda values
 #' @return
@@ -16,7 +16,7 @@
 
 
 Clogistic_SAE <- function(area, y, x, xunit,
-                          wts, N, model, group=NULL, lambda,
+                          wts, N, model, index_d = NULL,group=NULL, lambda,
                           standardize = TRUE, center = TRUE)
 {
 
@@ -143,6 +143,50 @@ Clogistic_SAE <- function(area, y, x, xunit,
     refit_est <- estSAE_logistic(obj = resm, indexy = area, y = y,
                                  x = x, xunit = xunit, wts = wts,
                                  N = N, model = "ccreg", group = group)
+
+  }
+
+  if(model == "separate")
+  {
+    len_d <- length(index_d)
+    xm_d <- cbind(1,x_sc[,index_d,drop = FALSE]) # different part
+    xm_s <- x_sc[,-(index_d), drop = FALSE] ## same part
+
+    ncxd <- ncol(xm_d)
+    Cm <- log(m*(1+ncxd))
+
+    init0 <- initial1(indexy = area, y = y,z = xm_s, x = xm_d,
+                      sweights = wts,
+                      Ni = N)
+    betam0 <- init0$betam
+    eta00 <- init0$eta
+
+    for(j in 1:nlam)
+    {
+      resj <- Clogistic1(indexy = area, y = y, z = xm_s, x = xm_d,
+                         sweights = wts, Ni = N,
+                         betam0 = betam0, eta00 = eta00,
+                         lam = lambda[j])
+      ng <- length(unique(resj$cluster))# number of clusters
+
+      ngest[j] <- ng
+      bic[j] <- 2*resj$nll/m + Cm *ng* (1+ncxd)*log(nt)/nt
+
+    }
+
+    BICm <- data.frame(ng = ngest, bic = bic)
+
+    resm <- Clogistic1(indexy = area, y = y, z = xm_s, x = xm_d,
+                       sweights = wts, Ni = N,
+                       betam0 = betam0, eta00 = eta00,
+                       lam = lambda[which.min(bic)])
+    # based on cluster get the estimate
+
+
+    refit_est <- estSAE_logistic(obj = resm, indexy = area, y = y,
+                                 x = x, xunit = xunit, wts = wts,
+                                 N = N, model = "separate",
+                                 group = group, index_d = index_d)
 
   }
 
