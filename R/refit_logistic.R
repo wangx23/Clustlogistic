@@ -46,6 +46,7 @@ refit_Lm1<- function(indexy, y, z, x, cluster, wts, N)
   eta_est <- est[-(1:(ng*ncx))]
   beta_est <- matrix(est[1:(ng*ncx)],ng, byrow = TRUE)
   beta_est <- beta_est[cluster,]
+  Ux <- Ux[,colSums(Ux)!=0]
   muhat <- 1/ (1+exp(-as.matrix(Ux) %*% as.numeric(est)))
 
   out <- list(eta = eta_est, beta = beta_est, muhat = muhat)
@@ -90,6 +91,7 @@ refit_Lm2 <- function(indexy, y, x, cluster, wts, N)
 
   beta_est <- matrix(est[1:(ng*ncx)],ng, byrow = TRUE)
   beta_est <- beta_est[cluster,]
+  Ux <- Ux[,colSums(Ux)!=0]
   muhat <- 1/ (1+exp(-as.matrix(Ux) %*% as.numeric(est)))
 
   out <- list(beta = beta_est, muhat = muhat)
@@ -144,7 +146,7 @@ refit_Lm3 <- function(indexy, y, x, group, clustermat,wts, N)
   for1 <- as.formula(paste("y","~0+",paste(paste("x", 1:ncol(Ux),sep=""),collapse = "+")))
   resw <- svyglm(for1,design, family =quasibinomial())
   est <- coef(resw)
-
+  Ux <- Ux[,colSums(Ux)!=0]
   muhat <- 1/ (1+exp(-as.matrix(Ux) %*% as.numeric(est)))
 
   estm <- Wmat %*% est
