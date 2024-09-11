@@ -14,7 +14,7 @@
 #'
 #' @examples
 #'
-initial2 <- function(indexy,y, x, sweights, Ni,lam0  = 0.001, tol = 1e-5, maxiter = 500)
+initial2 <- function(indexy,y, x, sweights, Ni,lam0  = 0.05, tol = 1e-5, maxiter = 500)
 {
   ns <- as.numeric(table(indexy))
 
