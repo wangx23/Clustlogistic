@@ -16,7 +16,7 @@
 #' @examples
 #'
 
-initial1 <- function(indexy,y, z, x, sweights, Ni, lam0  = 0.0001, tol = 1e-5, maxiter = 500)
+initial1 <- function(indexy,y, z, x, sweights, Ni, lam0  = 0.001, tol = 1e-5, maxiter = 500)
 {
 
   ns <- as.numeric(table(indexy))
@@ -68,7 +68,7 @@ initial1 <- function(indexy,y, z, x, sweights, Ni, lam0  = 0.0001, tol = 1e-5, m
   beta_cur <- beta00
   for(r in 1:maxiter)
   {
-    eta_r <- eta_cur + solve(t(as.numeric(wt*V)*z) %*% z + lam0 * diag(ncol(z))) %*% t(z) %*% (wt*(y-mu))
+    eta_r <- eta_cur + solve(t(as.numeric(wt*V)*z) %*% z) %*% t(z) %*% (wt*(y-mu))
     beta_r <- beta_cur +
       solve(t(as.numeric(wt*V)*Xm) %*% Xm + lam0 *AtA) %*% (t(Xm) %*% (wt*(y-mu)) - lam0*AtA %*%beta_cur)
 

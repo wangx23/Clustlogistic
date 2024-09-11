@@ -11,7 +11,7 @@ initial1(
   x,
   sweights,
   Ni,
-  lam0 = 1e-04,
+  lam0 = 0.001,
   tol = 1e-05,
   maxiter = 500
 )
