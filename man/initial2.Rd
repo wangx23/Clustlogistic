@@ -4,7 +4,7 @@
 \alias{initial2}
 \title{initial values for Clogistic2 and Clogistic_group}
 \usage{
-initial2(indexy, y, x, sweights, Ni, lam0 = 0.05, tol = 1e-05, maxiter = 500)
+initial2(indexy, y, x, sweights, Ni, lam0 = 0.01, tol = 1e-05, maxiter = 500)
 }
 \arguments{
 \item{indexy}{index for y (area), should be same for same areas or units}
